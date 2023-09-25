@@ -6,6 +6,8 @@ import {
   useContentfulInspectorMode,
   useContentfulLiveUpdates,
 } from "@contentful/live-preview/react";
+import Image from "next/image";
+import { imageLoader } from "../lib/imageLoader";
 
 export const Duplex = ({ component }) => {
   const { fields } = useContentfulLiveUpdates(component);
@@ -23,16 +25,22 @@ export const Duplex = ({ component }) => {
           >
             {fields.headline || ""}
           </h2>
+
           <div {...inspectorProps({ fieldId: "bodyText" })}>
             {documentToReactComponents(fields.bodyText || "")}
           </div>
         </div>
-        <img
+
+        <Image
+          loader={imageLoader}
+          width={450}
+          height={450}
+          src={`https:${fields.image?.fields.file.url}` || ""}
+          {...inspectorProps({ fieldId: "image" })}
           className={`order-first ${
             fields.containerLayout ? "md:order-first" : "md:order-last"
           }`}
-          src={`https:${fields.image?.fields.file.url}` || ""}
-          {...inspectorProps({ fieldId: "image" })}
+          alt="Picture of the author"
         />
       </div>
     </>

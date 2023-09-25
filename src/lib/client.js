@@ -1,6 +1,11 @@
 import { createClient } from "contentful";
 
-export const getEntriesBySlug = async ({ preview, contentType, slug }) => {
+export const getEntriesBySlug = async ({
+  preview,
+  contentType,
+  slug,
+  includeDepth = 10,
+}) => {
   const client = createClient({
     space: process.env.CONTENTFUL_SPACE_ID,
     host: preview ? "preview.contentful.com" : "cdn.contentful.com",
@@ -13,6 +18,7 @@ export const getEntriesBySlug = async ({ preview, contentType, slug }) => {
     const response = await client.getEntries({
       content_type: contentType,
       "fields.slug": slug,
+      include: includeDepth,
     });
     return response.items;
   } catch (error) {

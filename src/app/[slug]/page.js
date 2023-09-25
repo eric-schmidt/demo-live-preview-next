@@ -13,6 +13,7 @@ export const landingPage = async ({ params }) => {
     preview: isEnabled,
     contentType: "page",
     slug: params.slug,
+    includeDepth: 2,
   });
 
   return (

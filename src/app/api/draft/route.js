@@ -6,6 +6,7 @@ export async function GET(request) {
   // Parse query string parameters
   const { searchParams } = new URL(request.url);
   const secret = searchParams.get("secret");
+  const type = searchParams.get("type");
   const slug = searchParams.get("slug");
 
   // Check the secret and next parameters
@@ -17,7 +18,7 @@ export async function GET(request) {
   // Get entry by slug.
   const entries = await getEntriesBySlug({
     preview: true,
-    contentType: "page",
+    contentType: type,
     slug,
   });
 

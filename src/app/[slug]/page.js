@@ -7,10 +7,9 @@ export const landingPage = async ({ params }) => {
   // Check if Draft Mode is enabled.
   let { isEnabled } = draftMode();
   // TODO: Can't set the cookie on localhost, so force preview here.
-  isEnabled = true;
+  // isEnabled = true;
 
   const landingPages = await getEntriesBySlug({
-    // preview: isEnabled,
     preview: isEnabled,
     contentType: "page",
     slug: params.slug,

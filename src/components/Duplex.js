@@ -33,14 +33,15 @@ export const Duplex = ({ component }) => {
 
         <Image
           loader={imageLoader}
-          width={450}
-          height={450}
+          width={fields.image.fields.file.details.image.width}
+          height={fields.image.fields.file.details.image.height}
+          sizes="(max-width: 768px) 80vw, 425px"
           src={`https:${fields.image?.fields.file.url}` || ""}
-          {...inspectorProps({ fieldId: "image" })}
           className={`order-first ${
             fields.containerLayout ? "md:order-first" : "md:order-last"
           }`}
-          alt="Picture of the author"
+          alt={fields.image?.fields.title}
+          {...inspectorProps({ fieldId: "image" })}
         />
       </div>
     </>

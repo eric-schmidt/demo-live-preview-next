@@ -43,13 +43,15 @@ export const Hero = ({ component }) => {
         </div>
 
         <Image
-          loader={imageLoader}
-          width={1000}
-          height={1000}
-          src={`https:${fields.image?.fields.file.url}` || ""}
-          {...inspectorProps({ fieldId: "image" })}
-          alt="Picture of the author"
           className="object-cover"
+          loader={imageLoader}
+          priority={true} // prevent Largest Contentful Paint issues
+          width={fields.image.fields.file.details.image.width}
+          height={fields.image.fields.file.details.image.height}
+          sizes="(max-width: 1024px) 100vw, 1024px"
+          src={`https:${fields.image?.fields.file.url}` || ""}
+          alt={fields.image?.fields.title}
+          {...inspectorProps({ fieldId: "image" })}
         />
       </div>
     </>

@@ -19,10 +19,10 @@ export const landingPage = async ({ params }) => {
       <header className="App-header">
         {landingPages &&
           landingPages.map((landingPage) =>
-            landingPage.fields.topSection?.map((component) => (
+            landingPage.fields.topSection?.map((entry) => (
               <ComponentResolver
-                key={component.sys.contentType.sys.id}
-                component={component}
+                key={entry.sys.contentType.sys.id}
+                entry={entry}
               />
             ))
           )}

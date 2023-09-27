@@ -1,7 +1,7 @@
 import { ComponentMap } from "@/src/components/ComponentMap";
 
-export const ComponentResolver = ({ component }) => {
-  const Component = ComponentMap[component.sys.contentType.sys.id];
+export const ComponentResolver = ({ entry }) => {
+  const Component = ComponentMap[entry.sys.contentType.sys.id];
 
-  return <Component component={component} />;
+  return <Component entry={entry} />;
 };

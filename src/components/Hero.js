@@ -8,11 +8,11 @@ import { documentToReactComponents } from "@contentful/rich-text-react-renderer"
 import Image from "next/image";
 import { imageLoader } from "../lib/imageLoader";
 
-export const Hero = ({ component }) => {
+export const Hero = ({ entry }) => {
   // const { fields } = component;
-  const { fields } = useContentfulLiveUpdates(component);
+  const { fields } = useContentfulLiveUpdates(entry);
   const inspectorProps = useContentfulInspectorMode({
-    entryId: component?.sys.id,
+    entryId: entry?.sys.id,
   });
 
   return (

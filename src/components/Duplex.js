@@ -35,7 +35,7 @@ export const Duplex = ({ entry }) => {
           loader={imageLoader}
           width={fields.image.fields.file.details.image.width}
           height={fields.image.fields.file.details.image.height}
-          sizes="(max-width: 768px) 80vw, 425px"
+          sizes="(min-width: 1280px) 416px, (min-width: 780px) calc(45.42vw - 156px), calc(100vw - 240px)"
           src={`https:${fields.image?.fields.file.url}` || ""}
           className={`order-first ${
             fields.containerLayout ? "md:order-first" : "md:order-last"

@@ -46,7 +46,7 @@ export const Hero = ({ entry }) => {
           loader={imageLoader}
           priority={true} // prevent Largest Contentful Paint issues
           fill={true} // add object fit w/o height/width requirement
-          sizes="(max-width: 1024px) 100vw, 1024px"
+          sizes="(min-width: 1280px) 1024px, (min-width: 780px) calc(90.83vw - 121px), calc(100vw - 96px)"
           src={`https:${fields.image?.fields.file.url}` || ""}
           alt={fields.image?.fields.title}
           {...inspectorProps({ fieldId: "image" })}

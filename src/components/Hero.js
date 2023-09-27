@@ -9,7 +9,6 @@ import Image from "next/image";
 import { imageLoader } from "../lib/imageLoader";
 
 export const Hero = ({ entry }) => {
-  // const { fields } = component;
   const { fields } = useContentfulLiveUpdates(entry);
   const inspectorProps = useContentfulInspectorMode({
     entryId: entry?.sys.id,
@@ -17,8 +16,8 @@ export const Hero = ({ entry }) => {
 
   return (
     <>
-      <div className="relative">
-        <div className="p-6 md:p-12 absolute md:w-1/2 top-1/2 transform -translate-y-1/2 flex flex-col justify-center">
+      <div className="relative overflow-hidden">
+        <div className="relative z-10 md:max-w-lg px-10 py-20 md:px-10 md:py-40">
           <h1
             className="text-xl lg:text-3xl mb-4"
             {...inspectorProps({ fieldId: "headline" })}
@@ -46,8 +45,7 @@ export const Hero = ({ entry }) => {
           className="object-cover"
           loader={imageLoader}
           priority={true} // prevent Largest Contentful Paint issues
-          width={fields.image.fields.file.details.image.width}
-          height={fields.image.fields.file.details.image.height}
+          fill={true} // add object fit w/o height/width requirement
           sizes="(max-width: 1024px) 100vw, 1024px"
           src={`https:${fields.image?.fields.file.url}` || ""}
           alt={fields.image?.fields.title}

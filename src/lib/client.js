@@ -1,4 +1,4 @@
-import { createClient } from "contentful";
+import resolveResponse from "contentful-resolve-response";
 
 export const getEntriesBySlug = async ({
   preview,
@@ -6,22 +6,27 @@ export const getEntriesBySlug = async ({
   slug,
   includeDepth = 10,
 }) => {
-  const client = createClient({
-    space: process.env.CONTENTFUL_SPACE_ID,
-    host: preview ? "preview.contentful.com" : "cdn.contentful.com",
-    accessToken: preview
-      ? process.env.CONTENTFUL_PREVIEW_KEY
-      : process.env.CONTENTFUL_DELIVERY_KEY,
-  });
+  // Determine whether to use the preview or delivery domain + API key.
+  const domain = preview ? "preview.contentful.com" : "cdn.contentful.com";
+  const apiKey = preview
+    ? process.env.CONTENTFUL_PREVIEW_KEY
+    : process.env.CONTENTFUL_DELIVERY_KEY;
 
-  try {
-    const response = await client.getEntries({
-      content_type: contentType,
-      "fields.slug": slug,
-      include: includeDepth,
-    });
-    return response.items;
-  } catch (error) {
-    console.log(error);
+  const res = await fetch(
+    `https://${domain}/spaces/${process.env.CONTENTFUL_SPACE_ID}/environments/${process.env.CONTENTFUL_ENV_ID}/entries?content_type=${contentType}&fields.slug=${slug}&include=${includeDepth}`,
+    {
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+      },
+    }
+  );
+
+  if (!res.ok) {
+    // This will activate the closest `error.js` Error Boundary
+    throw new Error("Failed to fetch data");
   }
+
+  // Uses https://github.com/contentful/contentful-resolve-response to
+  // automatically resolve references.
+  return resolveResponse(await res.json());
 };

@@ -1,5 +1,23 @@
 import resolveResponse from "contentful-resolve-response";
 
+export const getLinksToEntryById = async ({ entryId }) => {
+  const res = await fetch(
+    `https://cdn.contentful.com/spaces/${process.env.CONTENTFUL_SPACE_ID}/environments/${process.env.CONTENTFUL_ENV_ID}/entries?links_to_entry=${entryId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${process.env.CONTENTFUL_DELIVERY_KEY}`,
+      },
+    }
+  );
+
+  if (!res.ok) {
+    // This will activate the closest `error.js` Error Boundary
+    throw new Error("Failed to fetch data");
+  }
+
+  return await res.json();
+};
+
 export const getEntriesBySlug = async ({
   preview,
   contentType,
@@ -18,6 +36,7 @@ export const getEntriesBySlug = async ({
       headers: {
         Authorization: `Bearer ${apiKey}`,
       },
+      next: { tags: [slug] },
     }
   );
 

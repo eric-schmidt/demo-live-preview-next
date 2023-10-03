@@ -2,7 +2,7 @@ import { draftMode } from "next/headers";
 import { redirect } from "next/navigation";
 import { getEntriesBySlug } from "@/src/lib/client";
 
-export async function GET(request) {
+export const GET = async (request) => {
   // Parse query string parameters
   const { searchParams } = new URL(request.url);
   const secret = searchParams.get("secret");
@@ -33,4 +33,4 @@ export async function GET(request) {
   // Redirect to the path from the fetched entry.
   // We don't redirect to searchParams.slug as that might lead to open redirect vulnerabilities
   redirect(`/${entries[0].fields.slug}`);
-}
+};

@@ -5,7 +5,7 @@ import { getLinksToEntryById } from "../../../lib/client";
 // E.g. http://localhost:3000/api/revalidate?secret=<secret>
 // BUT this needs to use ngrok to work properly as a Webhook endpoint!!!
 
-export async function POST(request) {
+export const POST = async (request) => {
   const secret = request.nextUrl.searchParams.get("secret");
 
   if (secret !== process.env.CONTENTFUL_REVALIDATION_SECRET) {
@@ -40,4 +40,4 @@ export async function POST(request) {
     });
 
   return NextResponse.json({ revalidated: true, now: Date.now() });
-}
+};

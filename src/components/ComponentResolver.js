@@ -1,3 +1,4 @@
+import React from "react";
 import { ComponentMap } from "@/src/components/ComponentMap";
 
 export const ComponentResolver = ({ entry }) => {

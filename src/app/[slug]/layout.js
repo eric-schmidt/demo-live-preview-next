@@ -1,5 +1,7 @@
 import React from "react";
 
-export default function LandingPageLayout({ children }) {
+const LandingPageLayout = ({ children }) => {
   return <>{children}</>;
-}
+};
+
+export default LandingPageLayout;

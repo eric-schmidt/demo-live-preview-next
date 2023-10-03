@@ -1,9 +1,9 @@
 "use client";
 
-import { ContentfulLivePreviewProvider } from "@contentful/live-preview/react";
 import React from "react";
+import { ContentfulLivePreviewProvider } from "@contentful/live-preview/react";
 
-export function Providers({ children, draftModeEnabled }) {
+export const Providers = ({ children, draftModeEnabled }) => {
   return (
     <ContentfulLivePreviewProvider
       locale="en-US"
@@ -13,4 +13,4 @@ export function Providers({ children, draftModeEnabled }) {
       {children}
     </ContentfulLivePreviewProvider>
   );
-}
+};

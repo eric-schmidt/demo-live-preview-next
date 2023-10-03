@@ -19,7 +19,7 @@ export const getLinksToEntryById = async ({ entryId }) => {
 };
 
 export const getEntriesBySlug = async ({
-  preview,
+  preview = false,
   contentType,
   slug,
   includeDepth = 10,

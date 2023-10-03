@@ -12,13 +12,13 @@ export const metadata = {
 };
 
 const RootLayout = ({ children }) => {
-  const { isEnabled: draftModeEnabled } = draftMode();
+  const { isEnabled } = draftMode();
 
   return (
     <html lang="en">
       <body className={inter.className}>
         <main className="flex min-h-screen flex-col items-center justify-between p-12 md:p-24">
-          <Providers draftModeEnabled={draftModeEnabled}>{children}</Providers>
+          <Providers draftModeEnabled={isEnabled}>{children}</Providers>
         </main>
       </body>
     </html>

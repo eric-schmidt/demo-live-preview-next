@@ -16,7 +16,7 @@ export const landingPage = async ({ params }) => {
 
   return (
     <div className="z-10 w-full max-w-5xl items-center justify-between text-sm lg:flex">
-      <header className="App-header">
+      <main className="app">
         {landingPages &&
           landingPages.map((landingPage) =>
             landingPage.fields.topSection?.map((entry) => (
@@ -26,7 +26,7 @@ export const landingPage = async ({ params }) => {
               />
             ))
           )}
-      </header>
+      </main>
     </div>
   );
 };

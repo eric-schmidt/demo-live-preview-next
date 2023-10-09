@@ -16,7 +16,7 @@ export const Duplex = ({ entry }) => {
   });
 
   return (
-    <section className="grid grid-cols-1 md:grid-cols-2 gap-12 p-6 m-12">
+    <section className="grid grid-cols-1 md:grid-cols-2 gap-12 p-6 mt-12">
       <div className="text-white flex flex-col justify-center">
         <h2
           className="text-2xl mb-4"

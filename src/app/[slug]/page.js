@@ -22,19 +22,17 @@ const landingPage = async ({ params }) => {
   }
 
   return (
-    <div className="z-10 w-full max-w-5xl items-center justify-between text-sm lg:flex">
-      <main className="app">
-        {landingPages &&
-          landingPages.map((landingPage) =>
-            landingPage.fields.topSection?.map((entry) => (
-              <ComponentResolver
-                key={entry.sys.contentType.sys.id}
-                entry={entry}
-              />
-            ))
-          )}
-      </main>
-    </div>
+    <>
+      {landingPages &&
+        landingPages.map((landingPage) =>
+          landingPage.fields.topSection?.map((entry) => (
+            <ComponentResolver
+              key={entry.sys.contentType.sys.id}
+              entry={entry}
+            />
+          ))
+        )}
+    </>
   );
 };
 

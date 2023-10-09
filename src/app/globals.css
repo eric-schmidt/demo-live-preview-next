@@ -25,3 +25,20 @@ body {
     )
     rgb(var(--background-start-rgb));
 }
+
+@layer base {
+  h1 {
+    @apply text-xl lg:text-3xl;
+  }
+
+  p {
+    @apply text-base leading-loose;
+  }
+}
+
+@layer components {
+  /* A button base shape. */
+  .btn {
+    @apply inline-block py-2 px-4 rounded font-bold;
+  }
+}

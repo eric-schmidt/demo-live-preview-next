@@ -1,4 +1,23 @@
 import resolveResponse from "contentful-resolve-response";
+import safeJsonStringify from "safe-json-stringify";
+
+export const getEntryById = async ({ entryId }) => {
+  const res = await fetch(
+    `https://cdn.contentful.com/spaces/${process.env.CONTENTFUL_SPACE_ID}/environments/${process.env.CONTENTFUL_ENV_ID}/entries/${entryId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${process.env.CONTENTFUL_DELIVERY_KEY}`,
+      },
+    }
+  );
+
+  if (!res.ok) {
+    // This will activate the closest `error.js` Error Boundary
+    throw new Error("Failed to fetch data");
+  }
+
+  return await res.json();
+};
 
 export const getLinksToEntryById = async ({ entryId }) => {
   const res = await fetch(
@@ -6,6 +25,30 @@ export const getLinksToEntryById = async ({ entryId }) => {
     {
       headers: {
         Authorization: `Bearer ${process.env.CONTENTFUL_DELIVERY_KEY}`,
+      },
+    }
+  );
+
+  if (!res.ok) {
+    // This will activate the closest `error.js` Error Boundary
+    throw new Error("Failed to fetch data");
+  }
+
+  return await res.json();
+};
+
+export const getEntriesByType = async ({ preview = false, contentType }) => {
+  // Determine whether to use the preview or delivery domain + API key.
+  const domain = preview ? "preview.contentful.com" : "cdn.contentful.com";
+  const apiKey = preview
+    ? process.env.CONTENTFUL_PREVIEW_KEY
+    : process.env.CONTENTFUL_DELIVERY_KEY;
+
+  const res = await fetch(
+    `https://${domain}/spaces/${process.env.CONTENTFUL_SPACE_ID}/environments/${process.env.CONTENTFUL_ENV_ID}/entries?content_type=${contentType}`,
+    {
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
       },
     }
   );
@@ -36,6 +79,7 @@ export const getEntriesBySlug = async ({
       headers: {
         Authorization: `Bearer ${apiKey}`,
       },
+      // Add cache tags that we can later invalidate via Contentful webhook.
       next: { tags: [slug] },
     }
   );
@@ -45,7 +89,11 @@ export const getEntriesBySlug = async ({
     throw new Error("Failed to fetch data");
   }
 
-  // Uses https://github.com/contentful/contentful-resolve-response to
-  // automatically resolve references.
-  return resolveResponse(await res.json());
+  // Uses https://github.com/contentful/contentful-resolve-response to automatically resolve references.
+  let jsonData = resolveResponse(await res.json());
+
+  // Uses https://github.com/debitoor/safe-json-stringify to prevent circular reference errors.
+  jsonData = JSON.parse(safeJsonStringify(jsonData));
+
+  return jsonData;
 };

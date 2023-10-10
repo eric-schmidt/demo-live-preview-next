@@ -97,3 +97,37 @@ export const getEntriesBySlug = async ({
 
   return jsonData;
 };
+
+export const getGraphQLResponse = async () => {
+  const query = `
+    {
+      componentDuplexCollection (limit: 5) {
+        items {
+          internalName
+          linkedFrom {
+            pageCollection {
+              items {
+                internalName
+                slug
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  let response = await fetch(
+    `https://graphql.contentful.com/content/v1/spaces/${process.env.CONTENTFUL_SPACE_ID}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.CONTENTFUL_PREVIEW_KEY}`,
+      },
+      body: JSON.stringify({ query }),
+    }
+  );
+
+  response = await response.json();
+};

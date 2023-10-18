@@ -89,35 +89,19 @@ export const getEntriesBySlug = async ({
     throw new Error("Failed to fetch data");
   }
 
+  const jsonData = await res.json();
+
   // Uses https://github.com/contentful/contentful-resolve-response to automatically resolve references.
-  let jsonData = resolveResponse(await res.json());
+  const resolvedJsonData = resolveResponse(jsonData);
 
   // Uses https://github.com/debitoor/safe-json-stringify to prevent circular reference errors.
-  jsonData = JSON.parse(safeJsonStringify(jsonData));
+  const safeJsonData = JSON.parse(safeJsonStringify(resolvedJsonData));
 
-  return jsonData;
+  return safeJsonData;
 };
 
-export const getGraphQLResponse = async () => {
-  const query = `
-    {
-      componentDuplexCollection (limit: 5) {
-        items {
-          internalName
-          linkedFrom {
-            pageCollection {
-              items {
-                internalName
-                slug
-              }
-            }
-          }
-        }
-      }
-    }
-  `;
-
-  let response = await fetch(
+export const getGraphQLResponse = async ({ query }) => {
+  const response = await fetch(
     `https://graphql.contentful.com/content/v1/spaces/${process.env.CONTENTFUL_SPACE_ID}`,
     {
       method: "POST",
@@ -129,5 +113,5 @@ export const getGraphQLResponse = async () => {
     }
   );
 
-  response = await response.json();
+  return await response.json();
 };

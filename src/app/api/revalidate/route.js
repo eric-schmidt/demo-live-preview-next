@@ -31,7 +31,6 @@ export const POST = async (request) => {
   const entry = await getEntryById({ entryId: payload.entryId });
 
   if (pageContentTypes.includes(entry.sys.contentType.sys.id)) {
-    console.log("Revalidating: ", entry.fields.slug);
     revalidateTag(entry.fields.slug);
   }
 
@@ -45,7 +44,6 @@ export const POST = async (request) => {
   linksToEntry &&
     linksToEntry.items.forEach((entry) => {
       if (pageContentTypes.includes(entry.sys.contentType.sys.id)) {
-        console.log("Revalidating: ", entry.fields.slug);
         revalidateTag(entry.fields.slug);
       }
     });

@@ -100,10 +100,6 @@ export const getEntriesBySlug = async ({
 
   try {
     const cachedData = await getCachedEntries();
-    console.log(
-      "Cached entries:",
-      cachedData[0].fields.topSection[0].fields.headline
-    );
     return cachedData;
   } catch (error) {
     console.error("Error retrieving cached entries:", error);

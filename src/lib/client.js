@@ -1,5 +1,3 @@
-import resolveResponse from "contentful-resolve-response";
-import safeJsonStringify from "safe-json-stringify";
 import { createClient } from "contentful";
 import { unstable_cache } from "next/cache";
 

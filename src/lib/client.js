@@ -1,5 +1,7 @@
 import resolveResponse from "contentful-resolve-response";
 import safeJsonStringify from "safe-json-stringify";
+import { createClient } from "contentful";
+import { unstable_cache } from "next/cache";
 
 export const getEntryById = async ({ entryId }) => {
   const res = await fetch(
@@ -67,37 +69,48 @@ export const getEntriesBySlug = async ({
   slug,
   includeDepth = 10,
 }) => {
-  // Determine whether to use the preview or delivery domain + API key.
-  const domain = preview ? "preview.contentful.com" : "cdn.contentful.com";
-  const apiKey = preview
-    ? process.env.CONTENTFUL_PREVIEW_KEY
-    : process.env.CONTENTFUL_DELIVERY_KEY;
+  // Define a cached function so that we can revalidate when content is updated.
+  const getCachedEntries = unstable_cache(
+    async () => {
+      // Determine whether to use the preview or delivery domain + API key.
+      const domain = preview ? "preview.contentful.com" : "cdn.contentful.com";
+      const apiKey = preview
+        ? process.env.CONTENTFUL_PREVIEW_KEY
+        : process.env.CONTENTFUL_DELIVERY_KEY;
 
-  const res = await fetch(
-    `https://${domain}/spaces/${process.env.CONTENTFUL_SPACE_ID}/environments/${process.env.CONTENTFUL_ENV_ID}/entries?content_type=${contentType}&fields.slug=${slug}&include=${includeDepth}`,
-    {
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-      },
-      // Add cache tags that we can later invalidate via Contentful webhook.
-      next: { tags: [slug] },
-    }
+      const client = createClient({
+        space: process.env.CONTENTFUL_SPACE_ID,
+        accessToken: apiKey,
+        host: domain,
+      });
+
+      try {
+        const response = await client.getEntries({
+          content_type: contentType,
+          include: includeDepth,
+          "fields.slug": slug,
+        });
+        return response.items;
+      } catch (error) {
+        console.error("Error fetching entries from Contentful:", error);
+        throw error;
+      }
+    },
+    [`entries-${contentType}-${slug}`],
+    { tags: [slug] }
   );
 
-  if (!res.ok) {
-    // This will activate the closest `error.js` Error Boundary
-    throw new Error("Failed to fetch data");
+  try {
+    const cachedData = await getCachedEntries();
+    console.log(
+      "Cached entries:",
+      cachedData[0].fields.topSection[0].fields.headline
+    );
+    return cachedData;
+  } catch (error) {
+    console.error("Error retrieving cached entries:", error);
+    throw error;
   }
-
-  const jsonData = await res.json();
-
-  // Uses https://github.com/contentful/contentful-resolve-response to automatically resolve references.
-  const resolvedJsonData = resolveResponse(jsonData);
-
-  // Uses https://github.com/debitoor/safe-json-stringify to prevent circular reference errors.
-  const safeJsonData = JSON.parse(safeJsonStringify(resolvedJsonData));
-
-  return safeJsonData;
 };
 
 export const getGraphQLResponse = async ({ query }) => {

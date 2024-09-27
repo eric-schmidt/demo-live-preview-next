@@ -1,5 +1,15 @@
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
+## Initial Setup
+
+1. Run `nvm use` to ensure you are on the correct version of node.
+2. Run `npm install` to install all dependencies.
+3. Copy `.env.example` and rename to `.env`.
+4. Populate the `.env` file with values for your `CONTENTFUL_SPACE_ID`, `CONTENTFUL_ENV_ID`, `CONTENTFUL_DELIVERY_KEY`, `CONTENTFUL_PREVIEW_KEY`.
+5. Note that `CONTENTFUL_PREVIEW_SECRET` and `CONTENTFUL_REVALIDATION_SECRET` are keys that you will need to invent, and should ideally be different.
+6. Configure a Content Preview within Contentful with the following URL: `http://localhost:3000/api/draft?secret=[ADD CONTENTFUL_PREVIEW_SECRET HERE]&type=page&slug={entry.fields.slug}`
+7. Create a custom Webhook in Contentful that fires on Entry `Create`, `Archive`, `Unarchive`, `Publish`, `Unpublish`, and `Delete`, pointing to the revalidation endpoint with your secret key added: `/api/revalidate?secret=[ADD CONTENTFUL_REVALIDATE_SECRET HERE]`. NOTE: If running this locally, Contentful cannot post a Webhook to `localhost`, so you will need to use ngrok to publicly serve the endpoint (e.g. `ngrok http 3000`).
+
 ## Getting Started
 
 First, run the development server:

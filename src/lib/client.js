@@ -1,5 +1,6 @@
 import { createClient } from "contentful";
 import { unstable_cache } from "next/cache";
+import safeJsonStringify from "safe-json-stringify";
 
 export const getEntryById = async ({ entryId }) => {
   const res = await fetch(
@@ -88,7 +89,8 @@ export const getEntriesBySlug = async ({
           include: includeDepth,
           "fields.slug": slug,
         });
-        return response.items;
+        // Prevent circular reference errors.
+        return JSON.parse(safeJsonStringify(response.items));
       } catch (error) {
         console.error("Error fetching entries from Contentful:", error);
         throw error;

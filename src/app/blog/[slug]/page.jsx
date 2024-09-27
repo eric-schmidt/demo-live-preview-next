@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Fragment } from "react";
 import { notFound } from "next/navigation";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
 import { getEntriesBySlug, getEntriesByType } from "@/src/lib/client";
@@ -26,7 +26,7 @@ export const blogPost = async ({ params }) => {
       {posts &&
         posts.map((post) => {
           return (
-            <>
+            <Fragment key={post.sys.id}>
               {/* Prevent circular reference errors. */}
               <Hero entry={post} />
 
@@ -37,7 +37,7 @@ export const blogPost = async ({ params }) => {
               <div className="p-6 mt-12">
                 {documentToReactComponents(post.fields.body)}
               </div>
-            </>
+            </Fragment>
           );
         })}
     </>

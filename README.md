@@ -9,6 +9,7 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 5. Note that `CONTENTFUL_PREVIEW_SECRET` and `CONTENTFUL_REVALIDATION_SECRET` are keys that you will need to invent, and should ideally be different.
 6. Configure a Content Preview within Contentful with the following URL: `http://localhost:3000/api/draft?secret=[ADD CONTENTFUL_PREVIEW_SECRET HERE]&type=page&slug={entry.fields.slug}`
 7. Create a custom Webhook in Contentful that fires on Entry `Create`, `Archive`, `Unarchive`, `Publish`, `Unpublish`, and `Delete`, pointing to the revalidation endpoint with your secret key added: `/api/revalidate?secret=[ADD CONTENTFUL_REVALIDATE_SECRET HERE]`. NOTE: If running this locally, Contentful cannot post a Webhook to `localhost`, so you will need to use ngrok to publicly serve the endpoint (e.g. `ngrok http 3000`).
+8. Assuming you have already installed the [Contentful CLI](https://www.contentful.com/developers/docs/tutorials/cli/installation/), import the baseline content model via the following command: `contentful space import --space-id <YOUR SPACE ID> --environment-id [YOUR ENVIRONMENT ID] --content-file content-model.json`.
 
 ## Getting Started
 

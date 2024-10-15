@@ -6,9 +6,9 @@ import { notFound } from "next/navigation";
 
 const landingPage = async ({ params }) => {
   // Check if Draft Mode is enabled.
-  let { isEnabled } = draftMode();
+  const { isEnabled } = draftMode();
   // TODO: Can't set the cookie on localhost with Live Preview, so preview can be forced to `true` here.
-  // isEnabled = true;
+  // const isEnabled = true;
 
   const landingPages = await getEntriesBySlug({
     preview: isEnabled,
@@ -26,10 +26,7 @@ const landingPage = async ({ params }) => {
       {landingPages &&
         landingPages.map((landingPage) =>
           landingPage.fields.topSection?.map((entry) => (
-            <ComponentResolver
-              key={entry.sys.contentType.sys.id}
-              entry={entry}
-            />
+            <ComponentResolver key={entry.sys.id} entry={entry} />
           ))
         )}
     </>

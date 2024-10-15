@@ -93,8 +93,6 @@ export const getEntriesBySlug = async ({
           "fields.slug": slug,
         });
 
-        console.log(JSON.parse(safeJsonStringify(response.items)));
-
         // Prevent circular reference errors.
         return JSON.parse(safeJsonStringify(response.items));
       } catch (error) {

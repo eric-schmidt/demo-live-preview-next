@@ -5,6 +5,33 @@ import { getEntryById, getLinksToEntryById } from "../../../lib/client";
 // E.g. http://localhost:3000/api/revalidate?secret=<secret>
 // BUT this needs to use ngrok to work properly as a Webhook endpoint!!!
 
+// Maintain a list of "page" content types for revalidation purposes.
+const pageContentTypes = ["category", "page", "post"];
+
+// Recursively find the page that needs to be revalidated by working up
+// through the reference tree of entries that link to the triggering entry.
+const findPageToRevalidate = async (entryId) => {
+  const entry = await getEntryById({ entryId });
+
+  if (pageContentTypes.includes(entry.sys.contentType.sys.id)) {
+    revalidateTag(entry.fields.slug);
+  } else {
+    const linksToEntry = await getLinksToEntryById({
+      entryId,
+    });
+
+    if (linksToEntry) {
+      for (const entry of linksToEntry.items) {
+        if (pageContentTypes.includes(entry.sys.contentType.sys.id)) {
+          revalidateTag(entry.fields.slug);
+        } else {
+          await findPageToRevalidate(entry.sys.id);
+        }
+      }
+    }
+  }
+};
+
 export const POST = async (request) => {
   const secret = request.nextUrl.searchParams.get("secret");
 
@@ -24,29 +51,8 @@ export const POST = async (request) => {
     );
   }
 
-  // Maintain a list of "page" content types for revalidation purposes.
-  const pageContentTypes = ["category", "page", "post"];
-
-  // Revalidate the entry (by slug) that was updated if it is a "page" content type.
-  const entry = await getEntryById({ entryId: payload.entryId });
-
-  if (pageContentTypes.includes(entry.sys.contentType.sys.id)) {
-    revalidateTag(entry.fields.slug);
-  }
-
-  // Get a list of entries that link to the given entry that triggered
-  // this webhook. If it is a "page" content type, get it's slug which
-  // we can use to revalidate. The slug is typically used as the tag
-  // when fetching the data (e.g. in `/src/app/[slug]/page.js`).
-  const linksToEntry = await getLinksToEntryById({ entryId: payload.entryId });
-
-  // TODO: Add some recursion so that we can run up the tree and validate for upper level parents that also need revalidation.
-  linksToEntry &&
-    linksToEntry.items.forEach((entry) => {
-      if (pageContentTypes.includes(entry.sys.contentType.sys.id)) {
-        revalidateTag(entry.fields.slug);
-      }
-    });
+  // Otherwise, find the page to revalidate.
+  await findPageToRevalidate(payload.entryId);
 
   return NextResponse.json({ revalidated: true, now: Date.now() });
 };

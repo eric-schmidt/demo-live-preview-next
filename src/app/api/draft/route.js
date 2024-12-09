@@ -1,4 +1,4 @@
-import { draftMode } from "next/headers";
+import { cookies, draftMode } from "next/headers";
 import { redirect } from "next/navigation";
 import { getEntriesBySlug } from "@/src/lib/client";
 

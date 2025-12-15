@@ -28,15 +28,17 @@ export const GET = async (request) => {
   }
 
   // Enable Draft Mode.
-  draftMode().enable();
+  const draft = await draftMode();
+  draft.enable();
 
   // In order for Draft Mode to work within the context of Live Preview and/or Studio,
   // we need to ensure the cookie has sameSite=None and secure=true.
   // @see https://www.contentful.com/developers/docs/tutorials/preview/live-preview/#my-page-has-an-authorization-cookie-for-logging-in
-  const draftModeCookie = cookies().get("__prerender_bypass");
+  const cookieStore = await cookies();
+  const draftModeCookie = cookieStore.get("__prerender_bypass");
   if (draftModeCookie) {
     // Set a new cookie with the same value but custom attributes
-    cookies().set("__prerender_bypass", draftModeCookie.value, {
+    cookieStore.set("__prerender_bypass", draftModeCookie.value, {
       secure: true,
       sameSite: "none",
       httpOnly: true,

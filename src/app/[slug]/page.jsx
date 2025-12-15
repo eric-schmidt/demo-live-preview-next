@@ -4,9 +4,10 @@ import { getEntriesBySlug } from "@/src/lib/client";
 import { ComponentResolver } from "@/src/components/ComponentResolver";
 import { notFound } from "next/navigation";
 
-const landingPage = async ({ params }) => {
+const landingPage = async props => {
+  const params = await props.params;
   // Check if Draft Mode is enabled.
-  const { isEnabled } = draftMode();
+  const { isEnabled } = await draftMode();
   // Sometimes it is helpful to override Draft Mode when testing.
   // const isEnabled = true;
 

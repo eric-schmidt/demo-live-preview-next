@@ -1,6 +1,30 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+/* Direct CSS properties instead of @apply */
+h1 {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+}
+
+@media (min-width: 1024px) {
+  h1 {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+  }
+}
+
+/* Direct CSS for consistent styling */
+p {
+  font-size: 1rem;
+  line-height: 1.625;
+}
+
+.btn {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  font-weight: 700;
+}
 
 :root {
   --foreground-rgb: 0, 0, 0;
@@ -24,21 +48,4 @@ body {
       rgb(var(--background-end-rgb))
     )
     rgb(var(--background-start-rgb));
-}
-
-@layer base {
-  h1 {
-    @apply text-xl lg:text-3xl;
-  }
-
-  p {
-    @apply text-base leading-loose;
-  }
-}
-
-@layer components {
-  /* A button base shape. */
-  .btn {
-    @apply inline-block py-2 px-4 rounded font-bold;
-  }
 }

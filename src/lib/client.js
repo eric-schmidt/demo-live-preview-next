@@ -65,7 +65,11 @@ export const getEntriesBySlug = async ({
   includeDepth = 10,
 }) => {
   const client = getClient({ preview });
+
   // Use the Next.js caching function so that we can revalidate when content is updated.
+  // Note: unstable_cache is still the recommended approach for Live Preview demos
+  // that need draftMode() access. The "use cache" directive isn't compatible with
+  // request-time dynamic data like draftMode().
   const getCachedEntries = unstable_cache(
     async () => {
       try {

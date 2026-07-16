@@ -26,7 +26,21 @@ export const POST = async (request) => {
     );
   }
 
+  const tags = [entryId];
   revalidateTag(entryId);
 
-  return NextResponse.json({ revalidated: true, tag: entryId });
+  // If the payload carries a slug + content type, also invalidate the
+  // slug-scoped tag. This handles the case where an earlier request cached
+  // an empty result (no items to tag by sys.id) at that slug.
+  const contentTypeId = payload?.sys?.contentType?.sys?.id;
+  const slug = payload?.fields?.slug;
+  const slugValue =
+    typeof slug === "string" ? slug : slug && Object.values(slug)[0];
+  if (contentTypeId && typeof slugValue === "string") {
+    const slugTag = `${contentTypeId}:${slugValue}`;
+    revalidateTag(slugTag);
+    tags.push(slugTag);
+  }
+
+  return NextResponse.json({ revalidated: true, tags });
 };

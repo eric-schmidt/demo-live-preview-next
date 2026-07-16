@@ -37,6 +37,9 @@ const getPublishedEntriesBySlug = async ({
 }) => {
   "use cache";
   cacheLife("contentful");
+  // Tag the query itself so an empty-result cache entry (miss before publish)
+  // can still be invalidated once content appears at this slug.
+  cacheTag(`${contentType}:${slug}`);
 
   const client = getClient({ preview: false });
 

@@ -1,5 +1,5 @@
 import { createClient } from "contentful";
-import { unstable_cache } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 import safeJsonStringify from "safe-json-stringify";
 
 // Retrieve a Contentful client with various configured options.
@@ -26,93 +26,69 @@ export const getClient = ({ preview = false }) => {
   }
 };
 
-// Get all entries from Contentful that are linking to a specifc entry.
-export const getLinksToEntryById = async ({ entryId }) => {
-  const client = getClient({ preview: false });
+// Cached fetch used for the public Delivery API. The "use cache" directive
+// caches the return value keyed on the function arguments; cacheTag() is
+// called with every referenced entry's sys.id so that a webhook publish for
+// any of them invalidates this page cache.
+const getPublishedEntriesBySlug = async ({
+  contentType,
+  slug,
+  includeDepth = 10,
+}) => {
+  "use cache";
+  cacheLife("contentful");
 
-  try {
-    return await client.getEntries({
-      links_to_entry: entryId,
-    });
-  } catch (error) {
-    console.error("Error fetching entries from Contentful:", error);
-    throw error;
-  }
-};
-
-// Get an individual entry from Contentful via its ID.
-export const getEntryById = async ({ entryId, includeDepth = 10 }) => {
   const client = getClient({ preview: false });
 
   try {
     const response = await client.getEntries({
-      "sys.id": entryId,
+      content_type: contentType,
       include: includeDepth,
+      "fields.slug": slug,
     });
-    // Only return the first item since we are querying by ID.
-    return response.items[0];
+    // Prevent circular reference errors.
+    const items = JSON.parse(safeJsonStringify(response.items));
+
+    for (const item of items) {
+      cacheTag(item.sys.id);
+    }
+    for (const entry of response.includes?.Entry ?? []) {
+      cacheTag(entry.sys.id);
+    }
+    for (const asset of response.includes?.Asset ?? []) {
+      cacheTag(asset.sys.id);
+    }
+
+    return items;
   } catch (error) {
-    console.error("Error fetching entry:", error);
+    console.error("Error fetching entries:", error);
     throw error;
   }
 };
 
-// Get all entries from Contentful via their slug.
+// Public API: dispatches on preview so the cached branch's "use cache"
+// directive stays static. Preview / Draft Mode reads bypass the cache
+// entirely — the Contentful Preview API must not be cached.
 export const getEntriesBySlug = async ({
   preview = false,
   contentType,
   slug,
   includeDepth = 10,
 }) => {
-  const client = getClient({ preview });
-
-  // Use the Next.js caching function so that we can revalidate when content is updated.
-  // Note: unstable_cache is still the recommended approach for Live Preview demos
-  // that need draftMode() access. The "use cache" directive isn't compatible with
-  // request-time dynamic data like draftMode().
-  const getCachedEntries = unstable_cache(
-    async () => {
-      try {
-        const response = await client.getEntries({
-          content_type: contentType,
-          include: includeDepth,
-          "fields.slug": slug,
-        });
-        // Prevent circular reference errors.
-        return JSON.parse(safeJsonStringify(response.items));
-      } catch (error) {
-        console.error("Error fetching entries:", error);
-        throw error;
-      }
-    },
-    [`entries-${contentType}-${slug}`],
-    { tags: [slug] }
-  );
-
-  try {
-    return await getCachedEntries();
-  } catch (error) {
-    console.error("Error fetching cached entries:", error);
-    throw error;
+  if (preview) {
+    const client = getClient({ preview: true });
+    try {
+      const response = await client.getEntries({
+        content_type: contentType,
+        include: includeDepth,
+        "fields.slug": slug,
+      });
+      return JSON.parse(safeJsonStringify(response.items));
+    } catch (error) {
+      console.error("Error fetching preview entries:", error);
+      throw error;
+    }
   }
-};
 
-// Get all entries of a specific Content Type from Contentful.
-export const getEntriesByType = async ({
-  preview = false,
-  contentType,
-  includeDepth = 10,
-}) => {
-  const client = getClient({ preview });
-
-  try {
-    const response = await client.getEntries({
-      content_type: contentType,
-      include: includeDepth,
-    });
-    return response.items;
-  } catch (error) {
-    console.error("Error fetching entries:", error);
-    throw error;
-  }
+  return getPublishedEntriesBySlug({ contentType, slug, includeDepth });
 };

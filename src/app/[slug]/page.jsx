@@ -1,12 +1,15 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { draftMode } from "next/headers";
 import { getEntriesBySlug } from "@/src/lib/client";
 import { ComponentResolver } from "@/src/components/ComponentResolver";
 import { notFound } from "next/navigation";
 
-const landingPage = async props => {
-  const params = await props.params;
-  // Check if Draft Mode is enabled.
+// Server Component that performs the request-time reads (params + draftMode)
+// and the Contentful fetch. Isolated so it can sit inside a <Suspense>
+// boundary — under Cache Components any uncached request-time access must
+// be wrapped in Suspense.
+const PageBody = async ({ params }) => {
+  const { slug } = await params;
   const { isEnabled } = await draftMode();
   // Sometimes it is helpful to override Draft Mode when testing.
   // const isEnabled = true;
@@ -14,7 +17,7 @@ const landingPage = async props => {
   const landingPages = await getEntriesBySlug({
     preview: isEnabled,
     contentType: "page",
-    slug: params.slug,
+    slug,
     includeDepth: 1,
   });
 
@@ -22,15 +25,18 @@ const landingPage = async props => {
     notFound();
   }
 
+  return landingPages.map((landingPage) =>
+    landingPage.fields.topSection?.map((entry) => (
+      <ComponentResolver key={entry.sys.id} entry={entry} />
+    ))
+  );
+};
+
+const landingPage = (props) => {
   return (
-    <>
-      {landingPages &&
-        landingPages.map((landingPage) =>
-          landingPage.fields.topSection?.map((entry) => (
-            <ComponentResolver key={entry.sys.id} entry={entry} />
-          ))
-        )}
-    </>
+    <Suspense fallback={null}>
+      <PageBody params={props.params} />
+    </Suspense>
   );
 };
 

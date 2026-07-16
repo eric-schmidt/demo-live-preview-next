@@ -26,6 +26,35 @@ export const getClient = ({ preview = false }) => {
   }
 };
 
+// Walk the Contentful response and collect every Entry/Asset id that appears
+// anywhere in the tree — as a resolved entity (`sys.type: 'Entry' | 'Asset'`)
+// or as an unresolved link stub (`sys.type: 'Link'` with a matching
+// `linkType`). Link stubs let us tag references one level deeper than the
+// query's `include` depth resolved.
+const collectContentfulIds = (node, ids = new Set()) => {
+  if (!node || typeof node !== "object") return ids;
+  if (Array.isArray(node)) {
+    for (const item of node) collectContentfulIds(item, ids);
+    return ids;
+  }
+  const sys = node.sys;
+  if (sys && typeof sys.id === "string") {
+    if (
+      sys.type === "Entry" ||
+      sys.type === "Asset" ||
+      (sys.type === "Link" &&
+        (sys.linkType === "Entry" || sys.linkType === "Asset"))
+    ) {
+      ids.add(sys.id);
+    }
+  }
+  for (const key of Object.keys(node)) {
+    if (key === "sys") continue;
+    collectContentfulIds(node[key], ids);
+  }
+  return ids;
+};
+
 // Cached fetch used for the public Delivery API. The "use cache" directive
 // caches the return value keyed on the function arguments; cacheTag() is
 // called with every referenced entry's sys.id so that a webhook publish for
@@ -52,14 +81,15 @@ const getPublishedEntriesBySlug = async ({
     // Prevent circular reference errors.
     const items = JSON.parse(safeJsonStringify(response.items));
 
-    for (const item of items) {
-      cacheTag(item.sys.id);
-    }
-    for (const entry of response.includes?.Entry ?? []) {
-      cacheTag(entry.sys.id);
-    }
-    for (const asset of response.includes?.Asset ?? []) {
-      cacheTag(asset.sys.id);
+    // Tag every Entry/Asset that appears anywhere in the response tree,
+    // including unresolved link stubs — so references one level deeper than
+    // the query's `include` still invalidate the parent when they publish.
+    const ids = new Set();
+    collectContentfulIds(items, ids);
+    collectContentfulIds(response.includes?.Entry, ids);
+    collectContentfulIds(response.includes?.Asset, ids);
+    for (const id of ids) {
+      cacheTag(id);
     }
 
     return items;

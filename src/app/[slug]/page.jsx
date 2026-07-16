@@ -2,6 +2,7 @@ import React, { Suspense } from "react";
 import { draftMode } from "next/headers";
 import { getEntriesBySlug } from "@/src/lib/client";
 import { ComponentResolver } from "@/src/components/ComponentResolver";
+import { LivePreviewResolver } from "@/src/components/LivePreviewResolver";
 import { notFound } from "next/navigation";
 
 // Server Component that performs the request-time reads (params + draftMode)
@@ -25,9 +26,14 @@ const PageBody = async ({ params }) => {
     notFound();
   }
 
+  // Draft: use the client-side resolver so Live Preview updates stream in.
+  // Published: use the server-side resolver so we ship zero Live Preview JS
+  // to the client for cached page renders.
+  const Resolver = isEnabled ? LivePreviewResolver : ComponentResolver;
+
   return landingPages.map((landingPage) =>
     landingPage.fields.topSection?.map((entry) => (
-      <ComponentResolver key={entry.sys.id} entry={entry} />
+      <Resolver key={entry.sys.id} entry={entry} />
     ))
   );
 };

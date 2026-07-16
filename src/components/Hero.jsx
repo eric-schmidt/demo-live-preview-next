@@ -1,17 +1,11 @@
-"use client";
-
 import React from "react";
-import { useContentfulLiveUpdates } from "@contentful/live-preview/react";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
 import Image from "next/image";
-import { imageLoader } from "@/src/lib/imageLoader";
 
-export const Hero = ({ entry }) => {
-  const { fields } = useContentfulLiveUpdates(entry);
-
+export const Hero = ({ fields, contentTypeId }) => {
   // TODO: How can we abstract this to make it more reusable from component to component? Mapping file of some sort?
   let headingFieldId, imageFieldId;
-  switch (entry.sys.contentType.sys.id) {
+  switch (contentTypeId) {
     case "componentHeroBanner":
       headingFieldId = "headline";
       imageFieldId = "image";
@@ -47,7 +41,6 @@ export const Hero = ({ entry }) => {
 
       <Image
         className="object-cover"
-        loader={imageLoader}
         priority={true} // prevent Largest Contentful Paint issues
         fill={true} // add object fit w/o height/width requirement
         sizes="(min-width: 1280px) 1024px, (min-width: 780px) calc(90.83vw - 121px), calc(100vw - 96px)"

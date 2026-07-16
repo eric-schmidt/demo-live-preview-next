@@ -2,6 +2,8 @@
 
 **Status:** Accepted — 2026-07-15
 
+**See also:** [ADR 0002 — Split component resolver for RSC / Client rendering paths](./0002-split-resolver-rsc-client.md)
+
 ## Context
 
 Data reads from Contentful were cached using Next.js's legacy `unstable_cache` primitive from `next/cache`, wrapped inside `getEntriesBySlug` in `src/lib/client.js`. Revalidation ran through `src/app/api/revalidate/route.js`, a webhook endpoint that received an entry ID and recursively walked the reference tree via `getEntryById` + `getLinksToEntryById` to find any ancestor "page-like" entry (from a hard-coded `["category","page","post"]` allowlist), then called `revalidateTag(entry.fields.slug)`.

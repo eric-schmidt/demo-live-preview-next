@@ -8,6 +8,10 @@ const nextConfig = {
       expire: 3600,
     },
   },
+  images: {
+    loader: "custom",
+    loaderFile: "./src/lib/imageLoader.js",
+  },
 };
 
 module.exports = nextConfig;

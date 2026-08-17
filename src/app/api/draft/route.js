@@ -23,7 +23,7 @@ export const GET = async (request) => {
   });
 
   // If the slug doesn't exist prevent draft mode from being enabled
-  if (!entries) {
+  if (!entries?.length) {
     return new Response("Invalid slug", { status: 401 });
   }
 

@@ -62,7 +62,7 @@ const collectContentfulIds = (node, ids = new Set()) => {
 const getPublishedEntriesBySlug = async ({
   contentType,
   slug,
-  includeDepth = 10,
+  includeDepth = 1,
 }) => {
   "use cache";
   cacheLife("contentful");

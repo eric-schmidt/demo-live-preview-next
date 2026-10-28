@@ -20,6 +20,7 @@ export const GET = async (request) => {
     preview: true,
     contentType: type,
     slug,
+    includeDepth: 1,
   });
 
   // If the slug doesn't exist prevent draft mode from being enabled
